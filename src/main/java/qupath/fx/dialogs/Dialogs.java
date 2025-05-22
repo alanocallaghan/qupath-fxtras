@@ -16,13 +16,19 @@
 
 package qupath.fx.dialogs;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.stage.PopupWindow;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -36,16 +42,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Modality;
+import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import qupath.fx.utils.FXUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Collection of static methods to help with showing information to a user, 
@@ -557,6 +557,8 @@ public class Dialogs {
 		private double height = -1;
 		private double prefWidth = -1;
 		private double prefHeight = -1;
+		private double minWidth = -1;
+		private double minHeight = -1;
 		private List<ButtonType> buttons = null;
 		private Modality modality = Modality.APPLICATION_MODAL;
 		
@@ -777,6 +779,28 @@ public class Dialogs {
 		}
 		
 		/**
+		 * Specify the minimum width of the dialog pane.
+		 * @param minWidth minimum width
+		 * @return this builder
+		 * @since v0.4.0
+		 */
+		public Builder minWidth(double minWidth) {
+			this.minWidth = minWidth;
+			return this;
+		}
+		
+		/**
+		 * Specify the minimum height of the dialog pane.
+		 * @param minHeight minimum height
+		 * @return this builder
+		 * @since v0.4.0
+		 */
+		public Builder minHeight(double minHeight) {
+			this.minHeight = minHeight;
+			return this;
+		}
+
+		/**
 		 * Specify the dialog height.
 		 * @param width requested width
 		 * @param height requested height
@@ -824,6 +848,10 @@ public class Dialogs {
 				dialog.getDialogPane().setPrefWidth(prefWidth);
 			if (prefHeight > 0)
 				dialog.getDialogPane().setPrefHeight(prefHeight);
+			if (minWidth > 0)
+				dialog.getDialogPane().setMinWidth(minWidth);
+			if (minHeight > 0)
+				dialog.getDialogPane().setMinHeight(minHeight);
 			if (buttons != null)
 				dialog.getDialogPane().getButtonTypes().setAll(buttons);
 			
