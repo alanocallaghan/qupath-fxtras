@@ -1,5 +1,5 @@
 /**
- * Copyright 2023, 2025 The University of Edinburgh
+ * Copyright 2023 - 2026 The University of Edinburgh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package qupath.fx.controls;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -93,8 +94,27 @@ public class InputDisplay implements EventHandler<InputEvent> {
 	// All windows to listen to
 	private final ObservableList<? extends Window> allWindows;
 
+	/**
+	 * Optionally reverse the scroll direction, both horizontally and vertically.
+	 * This exists to support the fact that scrolling can act differently on different platforms,
+	 * or even different devices using the same platform.
+	 * <p>
+	 * For example, on macOS there has been a setting for a mouse to use 'natural scrolling' for some years;
+	 * this also exists for Windows 11, or could previously have been adjusted in registry settings.
+	 * Unfortunately, we have no way to query this information from Java to 'correct' the scroll directions
+	 * shown here.
+	 */
+	private final BooleanProperty reverseScroll = new SimpleBooleanProperty(false);
+
+	/**
+	 * Boolean property that is true when the input display is showing, false otherwise.
+	 */
 	private final BooleanProperty showProperty = new SimpleBooleanProperty(false);
 
+	/**
+	 * Boolean property that adds a 'close' button on the top corner of the input display.
+	 * If set to false, the input display can be closed by double-clicking anywhere within the scene.
+	 */
 	private final BooleanProperty showCloseButton = new SimpleBooleanProperty(true);
 
 	private Stage stage;
@@ -131,16 +151,31 @@ public class InputDisplay implements EventHandler<InputEvent> {
 	private final BooleanProperty scrollUp = new SimpleBooleanProperty(false);
 	private final BooleanProperty scrollDown = new SimpleBooleanProperty(false);
 
-    // Optionally skip showing keypresses within text fields, text areas etc.
+	/**
+	 * Control whether keypresses are ignored when typing is performed within a text input control
+	 * (e.g. text field, text area).
+	 * Default is false.
+	 */
     private final BooleanProperty skipTextInputControls = new SimpleBooleanProperty(false);
 
-    // Duration of fade effect
+	/**
+	 * Control how quickly key presses fade after the keys have been released.
+	 * Default is 5 seconds.
+	 */
     private final ObjectProperty<Duration> fadeDurationProperty = new SimpleObjectProperty<>(Duration.seconds(5.0));
 
-    // Final opacity after fade (0 to disappear)
+	/**
+	 * Property to control the final opacity after keys have faded.
+	 * This should be a value between 0 (transparent) and 1 (opaque).
+	 * It can be used to control whether keypresses remain visible indefinitely after the key has been released.
+	 * Default is 0.1.
+	 */
     private final DoubleProperty fadeToProperty = new SimpleDoubleProperty(0.1);
 
-    // Optionally show symbols (Mac) or short forms (Windows, Linux) for modifier keys
+	/**
+	 * Optionally show symbols (macOS) or short forms (Windows, Linux) for modifier keys.
+	 * Default is false;
+	 */
     private final BooleanProperty showSymbolsProperty = new SimpleBooleanProperty(false);
 
 	/**
@@ -263,19 +298,23 @@ public class InputDisplay implements EventHandler<InputEvent> {
 		stage.setScene(scene);
 		FXUtils.makeDraggableStage(stage);
 
-
-		var tooltipClose = new Tooltip("Display input - double-click to close");
-		Tooltip.install(pane, tooltipClose);
-
-		// Locate at bottom left of the screen
-		stage.setX(screenBounds.getMinX() + xPad);
-		stage.setY(screenBounds.getMaxY() - scene.getHeight() - yPad);
-
+		// If not showing the close button, we need to have *some* way to close the dialog
+		var tooltip = new Tooltip();
+		tooltip.textProperty().bind(
+				Bindings.when(showCloseButton)
+						.then("Input display")
+						.otherwise("Input display - double-click to close")
+		);
+		Tooltip.install(pane, tooltip);
 		stage.getScene().setOnMouseClicked(e -> {
 			if (!showCloseButton.get() && e.getClickCount() == 2) {
 				hide();
 			}
 		});
+
+		// Locate at bottom left of the screen
+		stage.setX(screenBounds.getMinX() + xPad);
+		stage.setY(screenBounds.getMaxY() - scene.getHeight() - yPad);
 
 		return stage;
 	}
@@ -304,11 +343,7 @@ public class InputDisplay implements EventHandler<InputEvent> {
         });
     }
 
-    /**
-     * Whether the input display is currently showing or not.
-     * @return
-     */
-	public BooleanProperty showProperty() {
+    public BooleanProperty showProperty() {
 		return showProperty;
 	}
 
@@ -326,103 +361,64 @@ public class InputDisplay implements EventHandler<InputEvent> {
 		showProperty.set(false);
 	}
 
-    /**
-     * Property to control whether keypresses are displayed when typing is performed
-     * within a text input control (e.g. text field, text area).
-     * @return the property
-     */
+	public BooleanProperty reverseScrollProperty() {
+		return reverseScroll;
+	}
+
+	public void setReverseScroll(boolean doReverse) {
+		reverseScrollProperty().set(doReverse);
+	}
+
+	public boolean getReverseScroll() {
+		return reverseScrollProperty().get();
+	}
+
     public BooleanProperty skipTextInputControlsProperty() {
         return skipTextInputControls;
     }
 
-    /**
-     * Set the value of {@link #skipTextInputControlsProperty()}.
-     * @param skip true to skip key presses within input controls, false to display them
-     */
     public void setSkipTextInputControls(boolean skip) {
-        skipTextInputControls.set(skip);
+		skipTextInputControlsProperty().set(skip);
     }
 
-    /**
-     * Get the value of {@link #skipTextInputControlsProperty()}.
-     * @return
-     */
     public boolean getSkipTextInputControls() {
-        return skipTextInputControls.get();
+        return skipTextInputControlsProperty().get();
     }
 
-    /**
-     * Property to control whether modifier keys are shown using symbols or short forms, where available.
-     * @return the property
-     */
     public BooleanProperty showSymbolsProperty() {
         return showSymbolsProperty;
     }
 
-    /**
-     * Set the value of {@link #showSymbolsProperty()}.
-     * @param showSymbols true to show symbols where available, false to display text names
-     */
     public void setShowSymbols(boolean showSymbols) {
-        showSymbolsProperty.set(showSymbols);
+        showSymbolsProperty().set(showSymbols);
     }
 
-    /**
-     * Get the value of {@link #showSymbolsProperty()}.
-     * @return true if symbols should be shown, false otherwise
-     */
     public boolean getShowSymbols() {
-        return showSymbolsProperty.get();
+        return showSymbolsProperty().get();
     }
 
-    /**
-     * Property to control how quickly key presses fade after the keys have been released.
-     * @return the property
-     */
     public ObjectProperty<Duration> fadeDurationProperty() {
         return fadeDurationProperty;
     }
 
-    /**
-     * Set the value of {@link #fadeDurationProperty()}.
-     * @param duration) the new fade duration to use
-     */
     public void setFadeDuration(Duration duration) {
-        fadeDurationProperty.set(duration);
+        fadeDurationProperty().set(duration);
     }
 
-    /**
-     * Get the value of {@link #fadeDurationProperty()}.
-     * @return the current fade duration
-     */
     public Duration getFadeDuration() {
-        return fadeDurationProperty.get();
+        return fadeDurationProperty().get();
     }
 
-    /**
-     * Property to control the final opacity after fading out keypresses.
-     * This should be between 0 (completely transparent) and 1 (completely opaque).
-     * It can be used to control whether keypresses remain visible indefinitely after the key has been released.
-     * @return the property
-     */
     public DoubleProperty fadeToProperty() {
         return fadeToProperty;
     }
 
-    /**
-     * Set the value of {@link #fadeToProperty()}.
-     * @param opacity) the new fade opacity to use
-     */
     public void setFadeTo(double opacity) {
-        fadeToProperty.set(opacity);
+        fadeToProperty().set(opacity);
     }
 
-    /**
-     * Get the value of {@link #fadeToProperty()}.
-     * @return the current fade to opacity value
-     */
     public double getFadeTo() {
-        return fadeToProperty.get();
+        return fadeToProperty().get();
     }
 
 
@@ -568,6 +564,7 @@ public class InputDisplay implements EventHandler<InputEvent> {
 		arrow.setStrokeWidth(2);
 		arrow.setRotate(rotate);
 		arrow.getStyleClass().add(mouseItemClass);
+		Tooltip.install(arrow, new Tooltip("Angle: " + rotate));
 		return arrow;
 	}
 
@@ -630,11 +627,11 @@ public class InputDisplay implements EventHandler<InputEvent> {
 
         private void updateCapsLock() {
             // We can Handle caps lock by directly querying the key status
-            boolean changed = false;
+            boolean changed;
             if (Platform.isKeyLocked(KeyCode.CAPS).orElse(Boolean.FALSE)) {
-                changed = changed | currentModifiers.add(KeyCode.CAPS);
+                changed = currentModifiers.add(KeyCode.CAPS);
             } else {
-                changed = changed | currentModifiers.remove(KeyCode.CAPS);
+                changed = currentModifiers.remove(KeyCode.CAPS);
             }
             if (changed)
                 updateModifierText();
@@ -754,31 +751,40 @@ public class InputDisplay implements EventHandler<InputEvent> {
 
     private class ScrollFilter implements EventHandler<ScrollEvent> {
 
+		/**
+		 * Define delta to ignore extremely small scroll requests
+		 */
+		private static final double minScrollDelta = 0.001;
+
 		@Override
 		public void handle(ScrollEvent event) {
 			var type = event.getEventType();
+			resetScrolling();
 			if (type == ScrollEvent.SCROLL_STARTED || type == ScrollEvent.SCROLL) {
 				if (event.isInertia()) {
-					scrollUp.set(false);
-					scrollDown.set(false);
-					scrollLeft.set(false);
-					scrollRight.set(false);
 					return;
 				}
-				// Previously, there was support for 'invert scrolling' to do with different
-				// macOS behavior. This isn't used anymore, but the code is left in case it's needed again.
-				boolean invertScrolling = false;
-				double direction = invertScrolling ? -1 : 1;
-				scrollUp.set((event.getDeltaY() * direction) < -0.001);
-				scrollDown.set((event.getDeltaY() * direction) > 0.001);
-				scrollLeft.set((event.getDeltaX() * direction) < -0.001);
-				scrollRight.set((event.getDeltaX() * direction) > 0.001);
-			} else if (type == ScrollEvent.SCROLL_FINISHED) {
-				scrollUp.set(false);
-				scrollDown.set(false);
-				scrollLeft.set(false);
-				scrollRight.set(false);
+				double direction = getReverseScroll() ? -1 : 1;
+				if (Math.abs(event.getDeltaY()) > minScrollDelta) {
+					if (event.getDeltaY() * direction > 0)
+						scrollDown.set(true);
+					else
+						scrollUp.set(true);
+				}
+				if (Math.abs(event.getDeltaX()) * direction > minScrollDelta) {
+					if (event.getDeltaX() > 0)
+						scrollRight.set(true);
+					else
+						scrollLeft.set(true);
+				}
 			}
+		}
+
+		private void resetScrolling() {
+			scrollUp.set(false);
+			scrollDown.set(false);
+			scrollLeft.set(false);
+			scrollRight.set(false);
 		}
 
 	}
