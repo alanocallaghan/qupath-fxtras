@@ -21,6 +21,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -614,11 +615,11 @@ public class FXUtils {
 
     /**
      * Add shortcuts to close a window using the standard shortcuts (Shortcut+W, Esc).
-     * @param stage
-     * @see #addCloseWindowShortcuts(Stage, Collection)
+     * @param window
+     * @see #addCloseWindowShortcuts(Window, Collection)
      */
-    public static void addCloseWindowShortcuts(Stage stage) {
-        addCloseWindowShortcuts(stage, Arrays.asList(
+    public static void addCloseWindowShortcuts(Window window) {
+        addCloseWindowShortcuts(window, Arrays.asList(
                 new KeyCodeCombination(KeyCode.W, KeyCodeCombination.SHORTCUT_DOWN),
                 new KeyCodeCombination(KeyCode.ESCAPE)
         ));
@@ -627,21 +628,66 @@ public class FXUtils {
     /**
      * Add shortcuts to close a window using the specified key combinations.
      * These are applied as key released events, so they will not interfere with text input.
-     * @param stage
+     * @param window
      * @param keyCombinations
-     * @see #addCloseWindowShortcuts(Stage)
+     * @see #addCloseWindowShortcuts(Window)
      * @implSpec this only fires a window close request; any handler may still choose to consume the event quietly
      */
-    public static void addCloseWindowShortcuts(Stage stage, Collection<? extends KeyCombination> keyCombinations) {
+    public static void addCloseWindowShortcuts(Window window, Collection<? extends KeyCombination> keyCombinations) {
         if (keyCombinations.isEmpty()) {
             logger.warn("Empty list of close window shortcuts - ignoring request");
             return;
         }
-        stage.addEventHandler(KeyEvent.KEY_RELEASED, e -> {
+        window.addEventHandler(KeyEvent.KEY_RELEASED, e -> {
             if (e.isConsumed())
                 return;
             if (keyCombinations.stream().anyMatch(kc -> kc.match(e))) {
-                stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+                window.fireEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST));
+            }
+        });
+    }
+
+    /**
+     * Add shortcuts to close a dialog using the standard shortcuts (Shortcut+W, Esc).
+     * <p>
+     * If the dialog contains a button for {@link ButtonType#CANCEL} then this will be fired,
+     * otherwise a window close request will be fired.
+     * @param dialog
+     * @see #addCloseDialogShortcuts(DialogPane, Collection)
+     */
+    public static void addCloseDialogShortcuts(DialogPane dialog) {
+        addCloseDialogShortcuts(dialog, Arrays.asList(
+                new KeyCodeCombination(KeyCode.W, KeyCodeCombination.SHORTCUT_DOWN),
+                new KeyCodeCombination(KeyCode.ESCAPE)
+        ));
+    }
+
+    /**
+     * Add shortcuts to close a dialog using the specified key combinations.
+     * These are applied as key released events, so they will not interfere with text input.
+     * <p>
+     * If the dialog contains a button for {@link ButtonType#CANCEL} then this will be fired,
+     * otherwise a window close request will be fired.
+     * @param dialog
+     * @param keyCombinations
+     * @see #addCloseWindowShortcuts(Window)
+     * @implSpec this only fires a window close request; any handler may still choose to consume the event quietly
+     */
+    public static void addCloseDialogShortcuts(DialogPane dialog, Collection<? extends KeyCombination> keyCombinations) {
+        if (keyCombinations.isEmpty()) {
+            logger.warn("Empty list of close dialog shortcuts - ignoring request");
+            return;
+        }
+        dialog.addEventHandler(KeyEvent.KEY_RELEASED, e -> {
+            var window = FXUtils.getWindow(dialog);
+            if (e.isConsumed() || window == null)
+                return;
+            if (keyCombinations.stream().anyMatch(kc -> kc.match(e))) {
+                var btnCancel = dialog.lookupButton(ButtonType.CANCEL);
+                if (btnCancel != null)
+                    btnCancel.fireEvent(new ActionEvent(e, btnCancel));
+                else
+                    window.fireEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST));
             }
         });
     }
