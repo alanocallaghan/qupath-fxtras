@@ -16,6 +16,7 @@
 
 package qupath.fx.dialogs;
 
+import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.PopupWindow;
@@ -572,6 +573,7 @@ public class Dialogs {
 		private double prefHeight = -1;
 		private List<ButtonType> buttons = null;
 		private Modality modality = Modality.APPLICATION_MODAL;
+		private Boolean addCloseShortcuts = null;
 		
 		/**
 		 * Specify the dialog title.
@@ -645,6 +647,28 @@ public class Dialogs {
 		 */
 		public Builder resizable() {
 			resizable = true;
+			return this;
+		}
+
+		/**
+		 * Request that the dialog can be easily closed by shortcut keys, including Ctrl+W.
+		 * @return this builder
+		 * @see #closeShortcuts(boolean)
+		 */
+		public Builder closeShortcuts() {
+			return closeShortcuts(true);
+		}
+
+		/**
+		 * Optionally request that the dialog can be easily closed by shortcut keys, including Ctrl+W.
+		 * @param addShortcuts true if shortcuts should be added, false otherwise.
+		 *                     If not specified, the default behavior depends upon the dialog buttons, 
+		 *                     which are used as a hint to determine whether input is required.
+		 * @return this builder
+		 * @see FXUtils#addCloseDialogShortcuts(DialogPane) 
+		 */
+		public Builder closeShortcuts(boolean addShortcuts) {
+			this.addCloseShortcuts = addShortcuts;
 			return this;
 		}
 
@@ -728,20 +752,19 @@ public class Dialogs {
 		public Builder buttons(String... buttonNames) {
 			List<ButtonType> list = new ArrayList<>();
 			for (String name : buttonNames) {
-				ButtonType type;
-				switch (name.toLowerCase()) {
-				case "ok": type = ButtonType.OK; break;
-				case "yes": type = ButtonType.YES; break;
-				case "no": type = ButtonType.NO; break;
-				case "cancel": type = ButtonType.CANCEL; break;
-				case "apply": type = ButtonType.APPLY; break;
-				case "close": type = ButtonType.CLOSE; break;
-				case "finish": type = ButtonType.FINISH; break;
-				case "next": type = ButtonType.NEXT; break;
-				case "previous": type = ButtonType.PREVIOUS; break;
-				default: type = new ButtonType(name); break;
-				}
-				list.add(type);
+				ButtonType type = switch (name.toLowerCase()) {
+                    case "ok" -> ButtonType.OK;
+                    case "yes" -> ButtonType.YES;
+                    case "no" -> ButtonType.NO;
+                    case "cancel" -> ButtonType.CANCEL;
+                    case "apply" -> ButtonType.APPLY;
+                    case "close" -> ButtonType.CLOSE;
+                    case "finish" -> ButtonType.FINISH;
+                    case "next" -> ButtonType.NEXT;
+                    case "previous" -> ButtonType.PREVIOUS;
+                    default -> new ButtonType(name);
+                };
+                list.add(type);
 			}
 			this.buttons = list;
 			return this;
@@ -839,7 +862,22 @@ public class Dialogs {
 				dialog.getDialogPane().setPrefHeight(prefHeight);
 			if (buttons != null)
 				dialog.getDialogPane().getButtonTypes().setAll(buttons);
-			
+
+			boolean addQuickClose;
+			if (addCloseShortcuts == null) {
+				// Default to quick close if we have no buttons, or a single OK, CANCEL or CLOSE button
+				var actualButtons = dialog.getDialogPane().getButtonTypes();
+				addQuickClose = actualButtons.isEmpty() ||
+						(actualButtons.size() == 1 
+								&& Set.of(ButtonType.OK, ButtonType.CANCEL, ButtonType.CLOSE).contains(actualButtons.getFirst()));
+			} else {
+				addQuickClose = addCloseShortcuts;
+			}
+			if (addQuickClose) {
+				logger.trace("Adding close dialog shortcuts");
+				FXUtils.addCloseDialogShortcuts(dialog.getDialogPane());
+			}
+
 			// We do need to be able to close the dialog somehow
 			if (dialog.getDialogPane().getButtonTypes().isEmpty()) {
 				dialog.getDialogPane().getScene().getWindow().setOnCloseRequest(e -> dialog.hide());
