@@ -6,7 +6,7 @@ plugins {
 
 base {
     group = "io.github.qupath"
-    version = "0.3.0"
+    version = "0.4.0-SNAPSHOT"
     description = "Extra classes built on JavaFX that are used to help create the QuPath user interface. " +
             "These don't depend on other QuPath modules, so can be reused elsewhere."
 }
@@ -24,7 +24,7 @@ sourceSets {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 
     withSourcesJar()
@@ -37,7 +37,7 @@ java {
 }
 
 javafx {
-    version = "17"
+    version = "21"
     modules = listOf(
                 "javafx.base",
                "javafx.controls",
@@ -91,9 +91,9 @@ dependencies {
     // Optional ControlsFX support (used for notifications)
     controlsfxImplementation("org.controlsfx:controlsfx:11.1.2")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
     testImplementation("org.junit.platform:junit-platform-launcher")
-    testImplementation("ch.qos.logback:logback-classic:1.5.8")
+    testImplementation("ch.qos.logback:logback-classic:1.5.32")
 }
 
 
