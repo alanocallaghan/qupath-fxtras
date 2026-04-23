@@ -1,6 +1,7 @@
-## v0.4.0 (in progress)
+## v0.4.0
 - Use Java and JavaFX 21
-- Improved `InputDisplay` javadocs, new property to reverse scrolling
+- Improved `InputDisplay` javadocs, new property to reverse scrolling (https://github.com/qupath/qupath-fxtras/pull/70)
+- More control over adding close shortcuts to windows/dialogs (https://github.com/qupath/qupath-fxtras/pull/71)
 
 ## v0.3.0
 - Improve `InputDisplay` https://github.com/qupath/qupath-fxtras/pull/63, https://github.com/qupath/qupath-fxtras/pull/64, https://github.com/qupath/qupath-fxtras/pull/65, https://github.com/qupath/qupath-fxtras/pull/66
