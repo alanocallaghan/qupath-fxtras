@@ -612,11 +612,33 @@ public class FXUtils {
         }
     }
 
+    /**
+     * Add shortcuts to close a stage using the standard shortcuts (Shortcut+W, Esc).
+     * @param stage
+     * @deprecated use {@link #addCloseWindowShortcuts(Window)}
+     */
+    @Deprecated
+    public static void addCloseWindowShortcuts(Stage stage) {
+        addCloseWindowShortcuts((Window)stage);
+    }
+
+    /**
+     * Add shortcuts to close a stage using the specified key combinations.
+     * @param stage
+     * @param keyCombinations
+     * @deprecated use {@link #addCloseWindowShortcuts(Window, Collection)}
+     */
+    @Deprecated
+    public static void addCloseWindowShortcuts(Stage stage, Collection<? extends KeyCombination> keyCombinations) {
+        addCloseWindowShortcuts((Window)stage, keyCombinations);
+    }
+
 
     /**
      * Add shortcuts to close a window using the standard shortcuts (Shortcut+W, Esc).
      * @param window
      * @see #addCloseWindowShortcuts(Window, Collection)
+     * @since v0.4.0
      */
     public static void addCloseWindowShortcuts(Window window) {
         addCloseWindowShortcuts(window, Arrays.asList(
@@ -632,6 +654,7 @@ public class FXUtils {
      * @param keyCombinations
      * @see #addCloseWindowShortcuts(Window)
      * @implSpec this only fires a window close request; any handler may still choose to consume the event quietly
+     * @since v0.4.0
      */
     public static void addCloseWindowShortcuts(Window window, Collection<? extends KeyCombination> keyCombinations) {
         if (keyCombinations.isEmpty()) {

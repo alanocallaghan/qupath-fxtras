@@ -1,3 +1,6 @@
+## v0.4.1
+- Reinstate (but deprecate) previous methods to add close shortcuts to stages (https://github.com/qupath/qupath-fxtras/issues/73)
+
 ## v0.4.0
 - Use Java and JavaFX 21
 - Improved `InputDisplay` javadocs, new property to reverse scrolling (https://github.com/qupath/qupath-fxtras/pull/70)
