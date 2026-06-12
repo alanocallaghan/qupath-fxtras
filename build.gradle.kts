@@ -6,7 +6,7 @@ plugins {
 
 base {
     group = "io.github.qupath"
-    version = "0.4.0"
+    version = "0.4.1"
     description = "Extra classes built on JavaFX that are used to help create the QuPath user interface. " +
             "These don't depend on other QuPath modules, so can be reused elsewhere."
 }
