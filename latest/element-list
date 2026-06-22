@@ -9,3 +9,4 @@ qupath.fx.prefs.controlsfx.editors
 qupath.fx.prefs.controlsfx.items
 qupath.fx.utils
 qupath.fx.utils.converters
+qupath.lib.gui.charts
