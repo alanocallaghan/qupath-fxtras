@@ -1,4 +1,4 @@
-package qupath.lib.gui.charts;
+package qupath.fx.charts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class TransformedAxes {
 
-    private static double log(double x, double base) {
-        return Math.log(x) / Math.log(base);
+    private static double log1pX(double x, double base) {
+        return Math.log1p(x) / Math.log(base);
     }
 
     /**
@@ -22,11 +22,11 @@ public class TransformedAxes {
 
     /**
      * Create an axis to display values on a log10(x+1) scale.
-     * @param nTicks the number of minor ticks
+     * @param nMinorTicks the number of minor ticks
      * @return an axis with a suitable number of minor ticks
      */
-    public static TransformedAxis log1p10(int nTicks) {
-        return new LogAxis(10, nTicks);
+    public static TransformedAxis log1p10(int nMinorTicks) {
+        return new LogAxis(10, nMinorTicks);
     }
 
     /**
@@ -39,11 +39,11 @@ public class TransformedAxes {
 
     /**
      * Create an axis to display values on a log2(x+1) scale.
-     * @param nTicks the number of minor ticks
+     * @param mMinorTicks the number of minor ticks
      * @return an axis with n minor ticks
      */
-    public static TransformedAxis log1p2(int nTicks) {
-        return new LogAxis(2, nTicks);
+    public static TransformedAxis log1p2(int mMinorTicks) {
+        return new LogAxis(2, mMinorTicks);
     }
 
     static class LogAxis extends TransformedAxis {
@@ -56,26 +56,12 @@ public class TransformedAxes {
         }
 
         LogAxis(double base, int nTicks) {
-            super((d) -> log(d + 1, base), (d) -> Math.pow(base,  d - 1));
+            super((d) -> log1pX(d, base),
+                    (d) -> Math.expm1(d * Math.log(base))); // change of base for expm1
             this.base = base;
             this.nTicks = nTicks;
         }
 
-        @Override
-        protected List<Number> calculateTickValues(double length, Object range) {
-            Object[] orange = (Object[]) range;
-            double lowerBound = (double)orange[0];
-            double upperBound = (double)orange[1];
-            List<Number> tickValues = new ArrayList<>();
-            double minValue = transform.applyAsDouble(lowerBound);
-            double maxValue = transform.applyAsDouble(upperBound);
-            minValue = Math.floor(minValue);
-            maxValue = Math.ceil(maxValue);
-            for (double x = minValue; x <= maxValue; x++) {
-                tickValues.add(inverseTransform.applyAsDouble(x));
-            }
-            return tickValues;
-        }
 
         @Override
         protected List<Number> calculateMinorTickMarks() {
@@ -93,6 +79,7 @@ public class TransformedAxes {
             }
             return minorTicks;
         }
+
     }
 
 }

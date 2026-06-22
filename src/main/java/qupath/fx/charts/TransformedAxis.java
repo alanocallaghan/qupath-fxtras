@@ -1,6 +1,7 @@
-package qupath.lib.gui.charts;
+package qupath.fx.charts;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 import javafx.scene.chart.ValueAxis;
@@ -17,10 +18,6 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
         super();
         this.transform = transform;
         this.inverseTransform = inverseTransform;
-        double[] testvals = new double[]{1, 50, 100, 200};
-        for (double val: testvals) {
-            assert val == inverseTransform.applyAsDouble(transform.applyAsDouble(val));
-        }
     }
 
     @Override
@@ -57,14 +54,6 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
         }
     }
 
-    /**
-     * Calculate the major ticks without modifying the scale.
-     * @param length The length of the axis in display units
-     * @param range A range object returned from autoRange()
-     * @return the tick values on the natural scale.
-     */
-    @Override
-    protected abstract List<Number> calculateTickValues(double length, Object range);
 
     /**
      * Calculate the minor ticks without modifying the scale.
@@ -72,6 +61,30 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
      */
     @Override
     protected abstract List<Number> calculateMinorTickMarks();
+
+    /**
+     * Calculate the major ticks without modifying the scale.
+     * This implementation gives ticks at every integer on the transformed scale.
+     * Consider overriding.
+     * @param length The length of the axis in display units
+     * @param range A range object returned from autoRange()
+     * @return the tick values on the natural scale.
+     */
+    @Override
+    protected List<Number> calculateTickValues(double length, Object range) {
+        AxisBounds ab = (AxisBounds) range;
+        double lowerBound = ab.lower();
+        double upperBound = ab.upper();
+        List<Number> tickValues = new ArrayList<>();
+        double minValue = transform.applyAsDouble(lowerBound);
+        double maxValue = transform.applyAsDouble(upperBound);
+        minValue = Math.floor(minValue);
+        maxValue = Math.ceil(maxValue);
+        for (double x = minValue; x <= maxValue; x++) {
+            tickValues.add(inverseTransform.applyAsDouble(x));
+        }
+        return tickValues;
+    }
 
     @Override
     protected String getTickMarkLabel(Number value) {
@@ -106,9 +119,9 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
      */
     @Override
     protected void setRange(Object range, boolean animate) {
-        Object[] r = (Object[]) range;
-        double lower = (Double) r[0];
-        double upper = (Double) r[1];
+        AxisBounds b = (AxisBounds) range;
+        double lower = b.lower();
+        double upper = b.upper();
         setLowerBound(lower);
         setUpperBound(upper);
     }
@@ -119,7 +132,9 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
      */
     @Override
     protected Object getRange() {
-        return new Object[]{getLowerBound(), getUpperBound()};
+        return new AxisBounds(getLowerBound(), getUpperBound());
     }
 
+
+    record AxisBounds(double lower, double upper) {}
 }
