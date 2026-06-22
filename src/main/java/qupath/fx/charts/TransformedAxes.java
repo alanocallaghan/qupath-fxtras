@@ -8,10 +8,6 @@ import java.util.List;
  */
 public class TransformedAxes {
 
-    private static double log1pX(double x, double base) {
-        return Math.log1p(x) / Math.log(base);
-    }
-
     /**
      * Create an axis to display values on a log10(x+1) scale.
      * @return an axis with default ticks
@@ -56,7 +52,7 @@ public class TransformedAxes {
         }
 
         LogAxis(double base, int nTicks) {
-            super((d) -> log1pX(d, base),
+            super((d) -> Math.log1p(d) / Math.log(base),
                     (d) -> Math.expm1(d * Math.log(base))); // change of base for expm1
             this.base = base;
             this.nTicks = nTicks;
