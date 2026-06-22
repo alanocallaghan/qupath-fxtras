@@ -122,12 +122,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log10()" class="member-name-link">log10</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log1p10()" class="member-name-link">log1p10</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Create an axis to display values on a log10(x+1) scale.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log2()" class="member-name-link">log2</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log1p10(int)" class="member-name-link">log1p10</a><wbr>(int&nbsp;nTicks)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Create an axis to display values on a log10(x+1) scale.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log1p2()" class="member-name-link">log1p2</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Create an axis to display values on a log2(x+1) scale.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#log1p2(int)" class="member-name-link">log1p2</a><wbr>(int&nbsp;nTicks)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Create an axis to display values on a log2(x+1) scale.</div>
 </div>
@@ -163,9 +173,9 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="log10()">
-<h3>log10</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log10</span>()</div>
+<section class="detail" id="log1p10()">
+<h3>log1p10</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log1p10</span>()</div>
 <div class="block">Create an axis to display values on a log10(x+1) scale.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -174,13 +184,39 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="log2()">
-<h3>log2</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log2</span>()</div>
+<section class="detail" id="log1p10(int)">
+<h3>log1p10</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log1p10</span><wbr><span class="parameters">(int&nbsp;nTicks)</span></div>
+<div class="block">Create an axis to display values on a log10(x+1) scale.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>nTicks</code> - the number of minor ticks</dd>
+<dt>Returns:</dt>
+<dd>an axis with a suitable number of minor ticks</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="log1p2()">
+<h3>log1p2</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log1p2</span>()</div>
 <div class="block">Create an axis to display values on a log2(x+1) scale.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>an axis with default ticks</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="log1p2(int)">
+<h3>log1p2</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TransformedAxis.html" title="class in qupath.lib.gui.charts">TransformedAxis</a></span>&nbsp;<span class="element-name">log1p2</span><wbr><span class="parameters">(int&nbsp;nTicks)</span></div>
+<div class="block">Create an axis to display values on a log2(x+1) scale.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>nTicks</code> - the number of minor ticks</dd>
+<dt>Returns:</dt>
+<dd>an axis with n minor ticks</dd>
 </dl>
 </section>
 </li>
