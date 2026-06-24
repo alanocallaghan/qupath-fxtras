@@ -27,7 +27,7 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
         // delta between value and lower
         double deltaVal = transform.applyAsDouble(value.doubleValue()) - transform.applyAsDouble(getLowerBound());
         // ratio represents the fraction of the axis range we're located at
-        double ratio = deltaVal * deltaBound;
+        double ratio = deltaVal / deltaBound;
         if (getSide().isVertical()) {
             // if vertical, then it's 1-ratio times the height
             return (1.0 - ratio) * getHeight();
@@ -49,8 +49,9 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
         } else {
             // if horizontal, it's the inverse of the display position times the overall gap plus the min
             return inverseTransform.applyAsDouble(
-                    ((displayPosition / getWidth()) * delta)
-            ) + transform.applyAsDouble(getLowerBound());
+                    ((displayPosition / getWidth()) * delta) +
+                            transform.applyAsDouble(getLowerBound())
+            );
         }
     }
 
@@ -108,7 +109,7 @@ public abstract class TransformedAxis extends ValueAxis<Number> {
         // nearest 10 multiple either side
         minValue = Math.floor(minValue);
         maxValue = Math.ceil(maxValue);
-        return new Object[]{inverseTransform.applyAsDouble(minValue), inverseTransform.applyAsDouble(maxValue)};
+        return new AxisBounds(inverseTransform.applyAsDouble(minValue), inverseTransform.applyAsDouble(maxValue));
     }
 
     /**

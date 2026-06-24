@@ -60,6 +60,22 @@ public class TransformedAxes {
 
 
         @Override
+        protected List<Number> calculateTickValues(double length, Object range) {
+            AxisBounds ab = (AxisBounds) range;
+            double lowerBound = ab.lower();
+            double upperBound = ab.upper();
+            List<Number> tickValues = new ArrayList<>();
+            double minValue = transform.applyAsDouble(lowerBound);
+            double maxValue = transform.applyAsDouble(upperBound);
+            minValue = Math.floor(minValue);
+            maxValue = Math.ceil(maxValue);
+            for (double x = minValue; x <= maxValue; x++) {
+                tickValues.add(Math.pow(base, x));
+            }
+            return tickValues;
+        }
+
+        @Override
         protected List<Number> calculateMinorTickMarks() {
             List<Number> minorTicks = new ArrayList<>();
             // called decade even though may be arbitrary base
